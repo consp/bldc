@@ -268,7 +268,7 @@ static THD_FUNCTION(pas_thread, arg) {
 #ifdef HW_PAS1_PORT
 	palSetPadMode(HW_PAS1_PORT, HW_PAS1_PIN, PAL_MODE_INPUT_PULLUP);
 #ifdef HW_PAS2_PORT
-	if(pas_one_magnet == 0) {
+	if (config.sensor_type == PAS_SENSOR_TYPE_QUADRATURE) {
 	    palSetPadMode(HW_PAS2_PORT, HW_PAS2_PIN, PAL_MODE_INPUT_PULLUP);
 	}
 #endif
