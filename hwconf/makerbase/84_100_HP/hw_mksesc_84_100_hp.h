@@ -181,6 +181,10 @@
 #define HW_ICU_GPIO			    GPIOB
 #define HW_ICU_PIN			    6
 
+// PAS 
+#define HW_PAS1_PORT            HW_ICU_GPIO
+#define HW_PAS1_PIN             HW_ICU_PIN
+
 // I2C Peripheral
 #define HW_I2C_DEV			    I2CD2
 #define HW_I2C_GPIO_AF			GPIO_AF_I2C2
