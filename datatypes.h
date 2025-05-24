@@ -597,7 +597,8 @@ typedef enum {
 	APP_NRF,
 	APP_CUSTOM,
 	APP_PAS,
-	APP_ADC_PAS
+	APP_ADC_PAS,
+	APP_ADC_PAS_UART
 } app_use;
 
 // Throttle curve mode
@@ -680,7 +681,8 @@ typedef enum {
 
 // PAS sensor types
 typedef enum {
-	PAS_SENSOR_TYPE_QUADRATURE = 0
+	PAS_SENSOR_TYPE_QUADRATURE = 0,
+	PAS_SENSOR_TYPE_SINGLE
 } pas_sensor_type;
 
 typedef struct {
