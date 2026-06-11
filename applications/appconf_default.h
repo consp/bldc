@@ -218,6 +218,9 @@
 #ifndef APPCONF_ADC_UPDATE_RATE_HZ
 #define APPCONF_ADC_UPDATE_RATE_HZ			500
 #endif
+#ifndef APPCONF_ADC_LEGAL_FLAG
+#define APPCONF_ADC_LEGAL_FLAG              false
+#endif
 
 // UART app
 #ifndef APPCONF_UART_BAUDRATE

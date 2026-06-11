@@ -504,6 +504,7 @@ void comm_can_send_buffer(uint8_t controller_id, uint8_t *data, unsigned int len
 	}
 }
 
+
 void comm_can_set_duty(uint8_t controller_id, float duty) {
 	int32_t send_index = 0;
 	uint8_t buffer[4];
@@ -1235,6 +1236,7 @@ void comm_can_send_status2(uint8_t id, bool replace) {
 void comm_can_send_status3(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
+
 	buffer_append_int32(buffer, (int32_t)(mc_interface_get_watt_hours(false) * 1e4), &send_index);
 	buffer_append_int32(buffer, (int32_t)(mc_interface_get_watt_hours_charged(false) * 1e4), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_3 << 8),
@@ -1265,12 +1267,19 @@ void comm_can_send_status5(uint8_t id, bool replace) {
 void comm_can_send_status6(uint8_t id, bool replace) {
 	int32_t send_index = 0;
 	uint8_t buffer[8];
-	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT), 1e3, &send_index);
-	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT2), 1e3, &send_index);
-	buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT3), 1e3, &send_index);
-	buffer_append_float16(buffer, servodec_get_servo(0), 1e3, &send_index);
+    float wh_batt_left = 0.0;
+    mc_interface_get_battery_level(&wh_batt_left);
+
+	buffer_append_int32(buffer, (int32_t)(wh_batt_left * 1e3), &send_index);
+	buffer_append_int32(buffer, (int32_t)(mc_interface_get_distance() * 1e3), &send_index);
 	comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_6 << 8),
 			buffer, send_index, replace, 0);
+	/* buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT), 1e3, &send_index); */
+	/* buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT2), 1e3, &send_index); */
+	/* buffer_append_float16(buffer, ADC_VOLTS(ADC_IND_EXT3), 1e3, &send_index); */
+	/* buffer_append_float16(buffer, servodec_get_servo(0), 1e3, &send_index); */
+	/* comm_can_transmit_eid_replace(id | ((uint32_t)CAN_PACKET_STATUS_6 << 8), */
+	/* 		buffer, send_index, replace, 0); */
 }
 
 #if CAN_ENABLE
@@ -2004,6 +2013,14 @@ static void decode_msg(uint32_t eid, uint8_t *data8, int len, bool is_replaced) 
 					((uint32_t)CAN_PACKET_POLL_ROTOR_POS << 8), (uint8_t*)buffer, 4, true, 0);
 		} break;
 
+        case CAN_PACKET_SET_CURRENT_SCALE_MAX: {
+            mc_configuration *mcconf = mempools_alloc_mcconf();
+            *mcconf = *mc_interface_get_configuration();
+            mcconf->l_current_max_scale = buffer_get_float32_auto(data8, &ind);
+            commands_apply_mcconf_hw_limits(mcconf);
+            mc_interface_set_configuration(mcconf);
+            mempools_free_mcconf(mcconf);
+        }   break;
 		default:
 			break;
 		}

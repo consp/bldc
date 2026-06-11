@@ -366,7 +366,13 @@ static THD_FUNCTION(adc_thread, arg) {
 				pwr = -pwr;
 			}
 			break;
-
+        case ADC_CTRL_TYPE_BRAKE_CURRENT_NOREV_ADC:
+            if (brake == 0.0) {
+                pwr = -pwr;
+            } else {
+                pwr -= brake;
+            }
+            break;
 		default:
 			break;
 		}
@@ -394,7 +400,16 @@ static THD_FUNCTION(adc_thread, arg) {
 		bool current_mode_brake = false;
 		const volatile mc_configuration *mcconf = mc_interface_get_configuration();
 		const float rpm_now = mc_interface_get_rpm();
+        const float speed_now = mc_interface_get_speed();
 		bool send_duty = false;
+
+        // legal_flag operation, set pwr to nil if over 1.667m/s and not braking
+        if (config.legal_flag && speed_now > 1.667 && pwr >= 0.0) {
+            pwr = 0.0;
+        } else if (config.legal_flag && speed_now <= 1.667 && pwr > 0.0) {
+            // scale to half of pwr
+            pwr /= 2.0;
+        }
 
 		// Use the filtered and mapped voltage for control according to the configuration.
 		switch (config.ctrl_type) {
@@ -414,6 +429,7 @@ static THD_FUNCTION(adc_thread, arg) {
 		case ADC_CTRL_TYPE_CURRENT_NOREV_BRAKE_BUTTON:
 		case ADC_CTRL_TYPE_CURRENT_NOREV_BRAKE_ADC:
 		case ADC_CTRL_TYPE_CURRENT_REV_BUTTON_BRAKE_ADC:
+        case ADC_CTRL_TYPE_BRAKE_CURRENT_NOREV_ADC:
 			current_mode = true;
 			if (pwr >= 0.0) {
 				// if pedal assist (PAS) thread is running, use the highest current command

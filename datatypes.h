@@ -668,6 +668,7 @@ typedef enum {
 	ADC_CTRL_TYPE_DUTY_REV_BUTTON,
 	ADC_CTRL_TYPE_PID,
 	ADC_CTRL_TYPE_PID_REV_CENTER,
+    ADC_CTRL_TYPE_BRAKE_CURRENT_NOREV_ADC,
 	ADC_CTRL_TYPE_PID_REV_BUTTON
 } adc_control_type;
 
@@ -709,6 +710,7 @@ typedef struct {
 	bool tc;
 	float tc_max_diff;
 	uint32_t update_rate_hz;
+    bool legal_flag;
 } adc_config;
 
 // Nunchuk control types
@@ -1203,6 +1205,7 @@ typedef enum {
 	CAN_PACKET_BMS_STATUS_3					= 66,
 	CAN_PACKET_BMS_STATUS_4					= 67,
 	CAN_PACKET_BMS_STATUS_5					= 68,
+    CAN_PACKET_SET_CURRENT_SCALE_MAX        = 69,
 	CAN_PACKET_MAKE_ENUM_32_BITS = 0xFFFFFFFF,
 } CAN_PACKET_ID;
 
